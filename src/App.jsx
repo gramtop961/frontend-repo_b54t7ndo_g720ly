@@ -1,71 +1,80 @@
+import { useState } from 'react'
+import Navbar from './components/Navbar'
+import Hero from './components/Hero'
+import QuoteForm from './components/QuoteForm'
+import Results from './components/Results'
+
 function App() {
+  const [mode, setMode] = useState(null) // 'auto' | 'home'
+  const [results, setResults] = useState(null)
+
+  const start = (type) => {
+    setMode(type)
+    setResults(null)
+    setTimeout(() => {
+      const el = document.getElementById('quote')
+      el?.scrollIntoView({ behavior: 'smooth' })
+    }, 50)
+  }
+
+  const reset = () => {
+    setMode(null)
+    setResults(null)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      {/* Subtle pattern overlay */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.05),transparent_50%)]"></div>
+    <div className="min-h-screen bg-white text-blue-900">
+      <Navbar />
+      <Hero onStart={start} />
 
-      <div className="relative min-h-screen flex items-center justify-center p-8">
-        <div className="max-w-2xl w-full">
-          {/* Header with Flames icon */}
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center mb-6">
-              <img
-                src="/flame-icon.svg"
-                alt="Flames"
-                className="w-24 h-24 drop-shadow-[0_0_25px_rgba(59,130,246,0.5)]"
-              />
-            </div>
-
-            <h1 className="text-5xl font-bold text-white mb-4 tracking-tight">
-              Flames Blue
-            </h1>
-
-            <p className="text-xl text-blue-200 mb-6">
-              Build applications through conversation
-            </p>
-          </div>
-
-          {/* Instructions */}
-          <div className="bg-slate-800/50 backdrop-blur-sm border border-blue-500/20 rounded-2xl p-8 shadow-xl mb-6">
-            <div className="flex items-start gap-4 mb-6">
-              <div className="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-lg flex items-center justify-center font-bold">
-                1
-              </div>
-              <div>
-                <h3 className="font-semibold text-white mb-1">Describe your idea</h3>
-                <p className="text-blue-200/80 text-sm">Use the chat panel on the left to tell the AI what you want to build</p>
+      <section id="quote" className="py-16 bg-gradient-to-b from-white to-blue-50">
+        <div className="max-w-6xl mx-auto px-4">
+          {!mode && (
+            <div className="text-center">
+              <h2 className="text-3xl font-bold">Choose a product to get started</h2>
+              <p className="mt-2 text-blue-900/70">We’ll ask a few quick questions to tailor your quotes.</p>
+              <div className="mt-6 flex items-center justify-center gap-4">
+                <button onClick={() => start('auto')} className="px-5 py-3 rounded-md bg-blue-600 text-white hover:bg-blue-700">Auto Insurance</button>
+                <button onClick={() => start('home')} className="px-5 py-3 rounded-md bg-blue-100 text-blue-900 hover:bg-blue-200">Home Insurance</button>
               </div>
             </div>
+          )}
 
-            <div className="flex items-start gap-4 mb-6">
-              <div className="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-lg flex items-center justify-center font-bold">
-                2
-              </div>
-              <div>
-                <h3 className="font-semibold text-white mb-1">Watch it build</h3>
-                <p className="text-blue-200/80 text-sm">Your app will appear in this preview as the AI generates the code</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-lg flex items-center justify-center font-bold">
-                3
-              </div>
-              <div>
-                <h3 className="font-semibold text-white mb-1">Refine and iterate</h3>
-                <p className="text-blue-200/80 text-sm">Continue the conversation to add features and make changes</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Footer */}
-          <div className="text-center">
-            <p className="text-sm text-blue-300/60">
-              No coding required • Just describe what you want
-            </p>
-          </div>
+          {mode && !results && (
+            <QuoteForm type={mode} onResults={setResults} />
+          )}
         </div>
-      </div>
+      </section>
+
+      {results && <Results items={results} onReset={reset} />}
+
+      <section id="why" className="py-20 bg-white">
+        <div className="max-w-6xl mx-auto px-4 grid md:grid-cols-3 gap-8">
+          {[
+            { title: 'Simple', desc: 'One form, multiple quotes. No pushy sales calls.' },
+            { title: 'Transparent', desc: 'See prices and features side-by-side without hidden fees.' },
+            { title: 'Secure', desc: 'Your info is encrypted and only used to provide quotes.' }
+          ].map((c, i) => (
+            <div key={i} className="bg-white rounded-xl shadow-sm ring-1 ring-blue-100 p-6">
+              <div className="w-10 h-10 rounded-md bg-gradient-to-br from-blue-500 to-blue-700 mb-4" />
+              <h3 className="text-lg font-semibold">{c.title}</h3>
+              <p className="text-blue-900/70 mt-1">{c.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <footer className="py-10 bg-blue-900 text-blue-50">
+        <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded bg-blue-400" />
+            <span className="font-medium">BlueCompare</span>
+          </div>
+          <p className="text-blue-100/80 text-sm">© {new Date().getFullYear()} BlueCompare. All rights reserved.</p>
+          <a href="/test" className="text-blue-200 hover:text-white text-sm">System status</a>
+        </div>
+      </footer>
     </div>
   )
 }
